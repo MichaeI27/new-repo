@@ -1,15 +1,20 @@
 import RPi.GPIO as GPIO
 
-leds = [16, 20, 21, 25, 26, 17, 27, 22]
+dec_pins = [16, 20, 21, 25, 26, 17, 27, 22]
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(leds, GPIO.OUT)
-GPIO.output(leds, 0)
+GPIO.setup(dec_pins, GPIO.OUT)
+GPIO.output(dec_pins, 0)
 
 dynamic_range = 3.3
 
-def number_to_dac(value):
-    return [int(element) for element in bin(value)[2:].zfill(8)]
+def number_to_dac(number):
+    binary_str = bin(number)[2:].zfill(8)
+
+    for i in range(8):
+        GPIO.output(dec_pins[i], int(binary_str[i]))
+
+
 
 def voltage_to_number(voltage):
     if not (0.0 <= voltage <= dynamic_range):
@@ -31,5 +36,5 @@ try:
             print("Вы ввели не число. Попробуйте ещё раз\n")
 
 finally:
-    GPIO.output(dac_bits, 0)
+    GPIO.output(dec_pins, 0)
     GPIO.cleanup()
