@@ -15,5 +15,20 @@ def voltage_to_number(voltage):
         print(f"Напряжение выходит за динамический диапазон ЦАП (0.00 {dynamic_range:.2f} B)")
         print("Устанавливаем 0.0 B")
         return 0
-    
+
     return int(voltage / dynamic_range * 255)
+
+
+try:
+    while True:
+        try:
+            voltage = float(input("Введите напряжение в Вольтах: "))
+            number = voltage_to_number(voltage)
+            number_to_dac(number)
+
+        except ValueError:
+            print("Вы ввели не число. Попробуйте ещё раз\n")
+
+finally:
+    GPIO.output(dac_bits, 0)
+    GPIO.cleanup()
