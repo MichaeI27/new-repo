@@ -8,7 +8,8 @@ GPIO.output(leds, 0)
 
 dynamic_range = 3.3
 
-
+def number_to_dac(value):
+    return [int(element) for element in bin(value)[2:].zfill(8)]
 
 def voltage_to_number(voltage):
     if not (0.0 <= voltage <= dynamic_range):
