@@ -3,12 +3,7 @@ import RPi.GPIO as GPIO
 
 class PWM_DAC:
     def __init__(self, gpio_pin, pwm_frequency, dynamic_range, verbose=False):
-        """
-        gpio_pin       – номер GPIO (BCM),
-        pwm_frequency  – частота ШИМ в Гц,
-        dynamic_range  – максимальное выходное напряжение (В),
-        verbose        – печатать ли отладочные сообщения.
-        """
+
         self.gpio_pin = gpio_pin
         self.pwm_frequency = pwm_frequency
         self.dynamic_range = dynamic_range
@@ -17,30 +12,25 @@ class PWM_DAC:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.gpio_pin, GPIO.OUT, initial=0)
 
-        # создаём объект PWM (начальный duty-cycle = 0%)
+
         self.pwm = GPIO.PWM(self.gpio_pin, self.pwm_frequency)
         self.pwm.start(0)
 
     def deinit(self):
-        """Остановить ШИМ и вернуть пин в исходное состояние."""
+
         self.pwm.stop()
         GPIO.output(self.gpio_pin, 0)
         GPIO.cleanup()
 
     def set_voltage(self, voltage):
-        """
-        Принять напряжение в вольтах и выставить соответствующий duty-cycle.
-        """
+  
         if voltage < 0 or voltage > self.dynamic_range:
             print(f"Напряжение {voltage} В выходит за диапазон 0..{self.dynamic_range} В")
             return
 
-        # переводим напряжение в duty-cycle (0..100%)
         duty = (voltage / self.dynamic_range) * 100.0
         self.pwm.ChangeDutyCycle(duty)
 
-        if self.verbose:
-            print(f"U = {voltage:.3f} В, duty = {duty:.1f} %\n")
 
 
 if __name__ == "__main__":

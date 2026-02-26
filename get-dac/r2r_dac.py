@@ -3,8 +3,8 @@ import RPi.GPIO as GPIO
 
 class R2R_DAC:
     def __init__(self, gpio_bits, dynamic_range, verbose=False):
-        self.gpio_bits = gpio_bits          # список GPIO‑пинов (от младшего к старшему биту)
-        self.dynamic_range = dynamic_range  # максимальное выходное напряжение
+        self.gpio_bits = gpio_bits    
+        self.dynamic_range = dynamic_range 
         self.verbose = verbose
 
         GPIO.setmode(GPIO.BCM)
@@ -24,8 +24,6 @@ class R2R_DAC:
             print(f"Число выходит за разрядность ЦАП (0..{max_number})")
             return
 
-        # Подаём двоичное представление числа на выводы, предполагая,
-        # что gpio_bits[0] — младший бит, gpio_bits[-1] — старший
         for i, pin in enumerate(self.gpio_bits):
             bit = (number >> i) & 1
             GPIO.output(pin, bit)
@@ -45,7 +43,7 @@ class R2R_DAC:
 
 if __name__ == "__main__":
     try:
-        dac = R2R_DAC([16, 20, 21, 25, 26, 17, 27, 22], 3.183, True)
+        dac = R2R_DAC([22, 27, 17, 26, 25, 21, 20, 16], 3.183, True)
 
         while True:
             try:
