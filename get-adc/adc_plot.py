@@ -5,7 +5,7 @@ def plot_voltage_vs_time(time, voltage, max_voltage):
     plt.figure(figsize=(10, 6))
 
     # Размещаем график зависимости напряжений от времени
-    plt.plot(time, voltage, label='Measured Voltage')
+    plt.plot(time, voltage)
 
     # Задаем название графика и осей
     # plt.title("Зависимость напряжения от времени")

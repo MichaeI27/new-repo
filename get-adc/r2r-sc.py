@@ -1,5 +1,5 @@
 import time
-from adc_class import R2R_ADC  # Предполагается, что класс R2R_ADC в файле adc_class.py
+from r2r_adc import R2R_ADC  # Предполагается, что класс R2R_ADC в файле adc_class.py
 import adc_plot
 
 # Настройки
