@@ -21,6 +21,9 @@ while True:
 	counter -= GPIO.input(buttons[1])
 	if counter > 255 or counter < 0:
 		counter = 0
+	if GPIO.input(buttons[0]) and GPIO.input(buttons[1]):
+		counter = 255
+
 	print(counter, dec2bin(counter))
 	time.sleep(sleep_time)
 	GPIO.output(leds, dec2bin(counter))
