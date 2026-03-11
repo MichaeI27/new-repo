@@ -21,41 +21,67 @@ class R2R_ADC:
             print("GPIO cleaned up and DAC set to 0")
 
     def number_to_dac(self, number):
+        # Преобразуем число в список бит и подаем на GPIO
         bits = [int(bit) for bit in bin(number)[2:].zfill(8)]
-
         GPIO.output(self.bits_gpio, bits)
 
+    # Метод последовательного счета (уже был у вас)
     def sequential_counting_adc(self):
         for value in range(256):
             self.number_to_dac(value)
             time.sleep(self.compare_time)
-
             if GPIO.input(self.comp_gpio) == GPIO.HIGH:
-                if self.verbose:
-                    print(f"ADC Value found: {value}")
                 return value
-
         return 255
 
-    def get_sc_voltage(self):
-        value = self.sequential_counting_adc()
-        voltage = (value / 255) * self.dynamic_range
+    # --- НОВЫЕ МЕТОДЫ ---
+
+    def successive_approximation_adc(self):
+        """Реализация алгоритма бинарного поиска (SAR)"""
+        value = 0
+        for i in range(7, -1, -1):
+            # Пробуем установить i-й бит в 1
+            bit_weight = 1 << i
+            value += bit_weight
+
+            self.number_to_dac(value)
+            time.sleep(self.compare_time)
+
+            # Если напряжение на ЦАП стало больше входного (компаратор выдал 0),
+            # значит этот бит лишний — сбрасываем его
+            if GPIO.input(self.comp_gpio) == GPIO.LOW:
+                value -= bit_weight
+
+        if self.verbose:
+            print(f"SAR ADC Value: {value}")
+        return value
+
+    def get_sar_voltage(self):
+        """Возвращает измеренное напряжение в Вольтах (метод SAR)"""
+        value = self.successive_approximation_adc()
+        # Для 8-битного АЦП формула: (value / 256) * range
+        voltage = (value / 256.0) * self.dynamic_range
         return voltage
 
+# --- ОСНОВНОЙ ОХРАННИК ---
+
 if __name__ == "__main__":
-    MY_DYNAMIC_RANGE = 3.3
+    MY_DYNAMIC_RANGE = 3.3  # Напряжение питания (опорное)
 
     adc = None
     try:
+        # Создаем объект класса
         adc = R2R_ADC(dynamic_range=MY_DYNAMIC_RANGE, verbose=False)
 
-        print("Начинаю измерение напряжения. Нажмите Ctrl+C для выхода.")
+        print("Начинаю измерение методом SAR. Нажмите Ctrl+C для выхода.")
         while True:
-            voltage = adc.get_sc_voltage()
-            print(f"Voltage: {voltage:.3f} V")
+            # Используем новый метод SAR для измерения
+            voltage = adc.get_sar_voltage()
+            print(f"Measured Voltage: {voltage:.4f} V")
 
     except KeyboardInterrupt:
         print("\nПрограмма остановлена пользователем")
     finally:
+        # Вызов «деструктора» объекта (сработает GPIO.cleanup())
         if adc is not None:
             del adc
