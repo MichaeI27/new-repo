@@ -26,6 +26,10 @@ try:
 
     adc_plot.plot_voltage_vs_time(time_values, voltage_values, MY_DYNAMIC_RANGE)
 
+    print("Построение гистограммы периодов дискретизации...")
+
+    adp.plot_sampling_period_hist(time)
+
 finally:
     del adc
     print("Программа завершена, GPIO очищены.")
