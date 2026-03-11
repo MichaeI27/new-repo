@@ -7,7 +7,7 @@ class R2R_ADC:
         self.verbose = verbose
         self.compare_time = compare_time
 
-                self.bits_gpio = [26, 20, 19, 16, 13, 12, 25, 11]
+        self.bits_gpio = [26, 20, 19, 16, 13, 12, 25, 11]
         self.comp_gpio = 21
 
         GPIO.setmode(GPIO.BCM)
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         print("Начинаю измерение напряжения. Нажмите Ctrl+C для выхода.")
         while True:
             voltage = adc.get_sc_voltage()
-            print(f"Measured voltage: {voltage:.3f} V")
+            print(f"Voltage: {voltage:.3f} V")
 
     except KeyboardInterrupt:
         print("\nПрограмма остановлена пользователем")
