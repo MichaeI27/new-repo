@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 import time
 
 class R2R_ADC:
-    def __init__(self, dynamic_range, compare_time = 0.01, verbose = False):
+    def __init__(self, dynamic_range, compare_time = 0.001, verbose = False):
         self.dynamic_range = dynamic_range
         self.verbose = verbose
         self.compare_time = compare_time
@@ -45,6 +45,7 @@ class R2R_ADC:
             value += bit_weight
             self.number_to_dac(value)
             time.sleep(self.compare_time)
+
             if GPIO.input(self.comp_gpio) == GPIO.LOW:
                 value -= bit_weight
         return value
@@ -57,9 +58,15 @@ if __name__ == "__main__":
     MY_DYNAMIC_RANGE = 3.3
     adc = None
     try:
-        adc = R2R_ADC(dynamic_range=MY_DYNAMIC_RANGE, verbose=False)
-        print("Тест SAR...")
-        print(f"Voltage: {adc.get_sar_voltage():.4f} V")
+        adc = R2R_ADC(dynamic_range=MY_DYNAMIC_RANGE, compare_time=0.001, verbose=False)
+        # print("Тест SAR...")
+        # print(f"Voltage: {adc.get_sar_voltage():.4f} V")
+
+        while True:
+            v_sar = adc.get_sar_voltage()
+            v_sc = adc.get_sc_voltage()
+            print(f"SAR: {v_sar:.4f}V | {v_sc:.4f}V")
+
     except KeyboardInterrupt:
         print("\nВыход")
     finally:

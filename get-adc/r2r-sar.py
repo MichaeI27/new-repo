@@ -7,35 +7,36 @@ MY_DYNAMIC_RANGE = 3.3
 EXPERIMENT_DURATION = 5  # Продолжительность в секундах
 
 def main():
-    # Создаем объект АЦП
-    adc = adc_mod.R2R_ADC(dynamic_range=MY_DYNAMIC_RANGE, verbose=False)
-
-    voltages = []
-    timestamps = []
+    adc = None
 
     try:
-        print(f"Запуск записи данных (SAR) на {EXPERIMENT_DURATION} сек...")
+        adc = adc_mod.R2R_ADC(dynamic_range=MY_DYNAMIC_RANGE, compare_time=0, verbose=False)
+
+        voltages = []
+        timestamps = []
+        print(f"Запуск записи данных на 5 сек")
         start_time = time.time()
 
         while (time.time() - start_time) < EXPERIMENT_DURATION:
-            # Считываем напряжение методом SAR
             v = adc.get_sar_voltage()
             voltages.append(v)
 
-            # Фиксируем метку времени относительно начала
             timestamps.append(time.time() - start_time)
+
+            if len(voltages) % 50 == 0:
+                print(f"Текущее напряжение: {v:.3f} V")
 
         print(f"Запись окончена. Обработка {len(voltages)} точек...")
 
-        # --- МОДЕРНИЗАЦИЯ: Вызов гистограммы из adc_plot ---
-        # Эта функция построит распределение интервалов dt между замерами
-        adp.plot_sampling_period_hist(timestamps)
+        if len(voltages) > 0:
+            adp.plot_voltage_vs_time(timestamps, voltages, MY_DYNAMIC_RANGE)
+
+            adp.plot_sampling_period_hist(timestamps)
 
     except KeyboardInterrupt:
         print("\nПрервано пользователем.")
 
     finally:
-        # Явный вызов деструктора для очистки GPIO
         if adc is not None:
             del adc
         print("Работа завершена.")
